@@ -5,7 +5,6 @@ import {
   MeshNormalMaterial,
   Mesh,
   WebGLRenderer,
-  Vector3,
   FogExp2,
   DirectionalLight,
 } from "three";
