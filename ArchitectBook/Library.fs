@@ -7,11 +7,10 @@ open SimplexNoise
 module WorldChunk =
     let get (x, y) =
         Noise.Seed <- 123456789
-        let rand = Random()
 
-        Array.init 32 (fun x ->
+        Array.init 16 (fun x ->
             Array.init 384 (fun y ->
-                Array.init 32 (fun z ->
+                Array.init 16 (fun z ->
                     let h =
                         Convert.ToInt32(
                             Noise.CalcPixel2D(x, z, float32 0.00025) * float32 0.75
@@ -23,9 +22,9 @@ module WorldChunk =
                         Block(0, 0, "minecraft:air")
                     else
                         let v =
-                            Noise.CalcPixel3D(x, y, z, float32 0.1)
+                            Noise.CalcPixel3D(x, y, z, float32 0.075)
 
-                        if v > float32 ((384 - y) / 4) then
+                        if v > float32 ((420 - y) / 4) then
                             let d =
                                 Noise.CalcPixel3D(y, z, x, float32 0.08)
 
