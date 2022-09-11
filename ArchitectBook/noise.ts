@@ -9,7 +9,6 @@ import {
 
 import alea from "alea";
 import { createNoise2D } from "simplex-noise";
-import { parseSeed } from "./seed";
 
 type Props = {
   seed: string;

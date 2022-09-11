@@ -1,7 +1,7 @@
 import type { Block, Chunk } from "./types";
 
 import { noise } from "./noise";
-import { lerp, stretchToRange } from "./Math";
+import { lerp } from "./Math";
 import { getLandscapeHeight } from "./landscapeHeight";
 import { minecraft } from "./minecraft";
 import { isCave } from "./cave";
