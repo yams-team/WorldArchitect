@@ -22,6 +22,8 @@ export const getChunk = async (props: Props): Promise<Chunk> => {
   const startX = 16 * props.chunkX;
   const startZ = 16 * props.chunkZ;
 
+  const heightCache = new Map<string, number>();
+
   for (x = 0; x < 16; x++) {
     chunk[x] = new Array<Array<Block>>(384);
     for (y = 0; y < 384; y++) {
@@ -30,11 +32,20 @@ export const getChunk = async (props: Props): Promise<Chunk> => {
         const absX = x + startX;
         const absZ = z + startZ;
 
-        const height = await getLandscapeHeight({
-          seed: props.seed,
-          x: absX,
-          z: absZ,
-        });
+        let height = 0;
+        {
+          const heightCacheId = `${absX};${absZ}`;
+          if (heightCache.has(heightCacheId)) {
+            height = heightCache.get(heightCacheId)!;
+          } else {
+            height = await getLandscapeHeight({
+              seed: props.seed,
+              x: absX,
+              z: absZ,
+            });
+            heightCache.set(heightCacheId, height);
+          }
+        }
 
         if (
           y > height ||
