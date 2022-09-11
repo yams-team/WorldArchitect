@@ -1,0 +1,18 @@
+{
+  "name": "preview",
+  "version": "1.0.0",
+  "description": "World Architect preview",
+  "scripts": {
+    "dev": "rm -rf ./.parcel-cache && rm -rf dist && parcel src/index.html --open",
+    "build": "parcel build src/index.html --public-url https://yams-team.github.io/WorldArchitect/"
+  },
+  "author": "Frank-Mayer",
+  "license": "MIT",
+  "dependencies": {
+    "architect-book": "file:../ArchitectBook",
+    "three": "^0.144.0"
+  },
+  "devDependencies": {
+    "parcel": "^2.7.0"
+  }
+}

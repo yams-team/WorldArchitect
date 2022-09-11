@@ -1,0 +1,27 @@
+{
+  "name": "architect-book",
+  "version": "1.0.0",
+  "description": "Chunk generator library",
+  "main": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yams-team/WorldArchitect.git"
+  },
+  "author": "Frank-Mayer",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yams-team/WorldArchitect/issues"
+  },
+  "homepage": "https://github.com/yams-team/WorldArchitect#readme",
+  "devDependencies": {
+    "xxhash-wasm": "^1.0.1"
+  },
+  "dependencies": {
+    "@frank-mayer/magic": "^4.0.2",
+    "alea": "^1.0.1",
+    "simplex-noise": "^4.0.0"
+  }
+}
