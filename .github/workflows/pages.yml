@@ -32,8 +32,6 @@ jobs:
         uses: actions/checkout@v3
       - name: Setup Pages
         uses: actions/configure-pages@v1
-      - name: Enter Preview Project
-        run: cd Preview
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
@@ -41,13 +39,15 @@ jobs:
           registry-url: "https://registry.npmjs.org"
       - name: Install Dependencies
         run: npm install
+        working-directory: ./Preview
       - name: Build
         run: npm run build
+        working-directory: ./Preview
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
           # Upload entire repository
-          path: "./dist/"
+          path: "./Preview/dist/"
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v1
