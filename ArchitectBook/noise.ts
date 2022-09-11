@@ -20,29 +20,28 @@ type Props = {
 
 type dimensions = 2 | 3 | 4;
 
-const prngDict = new Map<dimensions, RandomFn>();
+const prngDict = new Map<string, RandomFn>();
 
 const getPrng = async (props: Props) => {
-  const dimension = props.c ? (props.d ? 4 : 3) : 2;
-
-  if (prngDict.has(dimension)) {
-    return prngDict.get(dimension)!;
+  if (prngDict.has(props.seed)) {
+    return prngDict.get(props.seed)!;
   } else {
     const prng = alea(props.seed);
-    prngDict.set(dimension, prng);
+    prngDict.set(props.seed, prng);
     return prng;
   }
 };
 
 type noiseFunction = NoiseFunction2D | NoiseFunction3D | NoiseFunction4D;
 
-const noiseDict = new Map<dimensions, noiseFunction>();
+const noiseDict = new Map<string, noiseFunction>();
 
 const getNoise = async (props: Props) => {
   const dimension = props.c ? (props.d ? 4 : 3) : 2;
+  const id = `${props.seed}#${dimension}`;
 
-  if (noiseDict.has(dimension)) {
-    return noiseDict.get(dimension)!;
+  if (noiseDict.has(id)) {
+    return noiseDict.get(id)!;
   } else {
     const prng = await getPrng(props);
     const noise =
@@ -51,7 +50,7 @@ const getNoise = async (props: Props) => {
         : dimension == 3
         ? createNoise3D(prng)
         : createNoise4D(prng);
-    noiseDict.set(dimension, noise);
+    noiseDict.set(id, noise);
     return noise;
   }
 };
