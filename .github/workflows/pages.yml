@@ -37,10 +37,13 @@ jobs:
         with:
           node-version: lts/*
           registry-url: "https://registry.npmjs.org"
-      - name: Install Dependencies
+      - name: Install ArchitectBook Dependencies
+        run: npm install
+        working-directory: ./ArchitectBook
+      - name: Install Preview Dependencies
         run: npm install
         working-directory: ./Preview
-      - name: Build
+      - name: Build Preview
         run: npm run build
         working-directory: ./Preview
       - name: Upload artifact
