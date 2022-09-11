@@ -2,11 +2,7 @@ import {
   PerspectiveCamera,
   Scene,
   BoxGeometry,
-  MeshNormalMaterial,
-  Mesh,
   WebGLRenderer,
-  FogExp2,
-  DirectionalLight,
   HemisphereLight,
   MeshLambertMaterial,
   Material,
@@ -23,9 +19,9 @@ const camera = new PerspectiveCamera(
   90,
   window.innerWidth / window.innerHeight,
   0.01,
-  25
+  100
 );
-camera.position.set(0, 20, 5);
+camera.position.set(-10, 25, 5);
 
 const scene = new Scene();
 
@@ -35,7 +31,7 @@ scene.add(skyLight);
 const blocksGroup = new Group();
 scene.add(blocksGroup);
 
-const blockSize = 0.2;
+const blockSize = 0.1;
 
 const geometry = new BoxGeometry(blockSize, blockSize, blockSize);
 const colorMat = (color: number) =>
@@ -55,9 +51,9 @@ const chunkLoop = (
   const startX = 16 * chunkX;
   const startZ = 16 * chunkZ;
 
-  for (let x = 0; x < 64; x++) {
+  for (let x = 0; x < 16; x++) {
     for (let y = 0; y < 319; y++) {
-      for (let z = 0; z < 64; z++) {
+      for (let z = 0; z < 16; z++) {
         if (
           Array.isArray(chunk) &&
           x < chunk.length &&
@@ -71,50 +67,6 @@ const chunkLoop = (
         }
       }
     }
-  }
-};
-
-const loadChunk = (chunk: Chunk, chunkX: number, chunkZ: number) => {
-  const instanceGroups = new Map(
-    Array.from(material.keys()).map((key) => {
-      const mat = material.get(key)!;
-
-      let count = 0;
-      chunkLoop(chunk, chunkX, chunkZ, (_x, _y, _z, block) => {
-        if (block.textId === key) {
-          count++;
-        }
-      });
-
-      return [key, new InstancedMesh(geometry, mat, count)];
-    })
-  );
-
-  const instanceGroupIndex = new Map<string, number>();
-
-  chunkLoop(chunk, chunkX, chunkZ, (x, y, z, block) => {
-    if (block.id === 0) {
-      return;
-    }
-
-    const instanceGroup = instanceGroups.get(block.textId);
-
-    if (!instanceGroup) {
-      throw new Error(`No instance group for block ${block.textId}`);
-    }
-
-    const i = instanceGroupIndex.get(block.textId) ?? 0;
-
-    instanceGroup.setMatrixAt(
-      i,
-      new Matrix4().makeTranslation(x * blockSize, y * blockSize, z * blockSize)
-    );
-
-    instanceGroupIndex.set(block.textId, i + 1);
-  });
-
-  for (const instanceGroup of instanceGroups.values()) {
-    blocksGroup.add(instanceGroup);
   }
 };
 
@@ -136,9 +88,51 @@ window.addEventListener("resize", () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-blocksGroup.clear();
+const loadChunk = (
+  chunk: Chunk,
+  chunkX: number,
+  chunkZ: number,
+  instanceGroups: Map<string, InstancedMesh>,
+  instanceGroupIndex: Map<string, number>
+) => {
+  chunkLoop(chunk, chunkX, chunkZ, (x, y, z, block) => {
+    if (block.id === 0) {
+      return;
+    }
+
+    const instanceGroup = instanceGroups.get(block.textId);
+
+    if (instanceGroup) {
+      const i = instanceGroupIndex.get(block.textId) ?? 0;
+
+      instanceGroup.setMatrixAt(
+        i,
+        new Matrix4().makeTranslation(
+          x * blockSize,
+          y * blockSize,
+          z * blockSize
+        )
+      );
+
+      instanceGroupIndex.set(block.textId, i + 1);
+    } else {
+      throw new Error(`No instance group for block ${block.textId}`);
+    }
+  });
+
+  for (const instanceGroup of instanceGroups.values()) {
+    blocksGroup.add(instanceGroup);
+  }
+};
 
 (async (radius: number) => {
+  const materialCounts = new Map<string, number>();
+  const chunks = new Array<{
+    x: number;
+    z: number;
+    chunk: Chunk;
+  }>();
+
   for (let x = -radius; x < radius; x++) {
     for (let z = -radius; z < radius; z++) {
       const chunkName = `Chunk(${x}, ${z})`;
@@ -150,7 +144,32 @@ blocksGroup.clear();
       });
       console.timeEnd(chunkName);
 
-      loadChunk(chunk, x, z);
+      chunks.push({ x, z, chunk });
+
+      for (const a of chunk) {
+        for (const b of a) {
+          for (const c of b) {
+            if (c.id !== 0) {
+              const count = materialCounts.get(c.textId) ?? 0;
+              materialCounts.set(c.textId, count + 1);
+            }
+          }
+        }
+      }
     }
   }
-})(2);
+
+  const instanceGroups = new Map(
+    Array.from(material.keys()).map((key) => {
+      const mat = material.get(key)!;
+
+      return [key, new InstancedMesh(geometry, mat, materialCounts.get(key)!)];
+    })
+  );
+
+  const instanceGroupIndex = new Map<string, number>();
+
+  for (const { x, z, chunk } of chunks) {
+    loadChunk(chunk, x, z, instanceGroups, instanceGroupIndex);
+  }
+})(4);
