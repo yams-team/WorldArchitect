@@ -15,5 +15,10 @@
   "devDependencies": {
     "@types/three": "^0.144.0",
     "parcel": "^2.7.0"
+  },
+  "config": {
+    "commitizen": {
+      "path": "cz-conventional-changelog"
+    }
   }
 }
